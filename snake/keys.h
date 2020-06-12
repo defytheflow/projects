@@ -1,0 +1,5 @@
+#define _KEY_UP     'w'
+#define _KEY_LEFT   'a'
+#define _KEY_DOWN   's'
+#define _KEY_RIGHT  'd'
+#define _KEY_QUIT   'q'

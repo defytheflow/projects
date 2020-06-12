@@ -1,109 +1,54 @@
-#include <ncurses.h>
+#include "snake.h"
+#include "game_window.h"
+#include "keys.h"
 
+#include <ncurses.h>
+#include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#define _KEY_UP     'w'
-#define _KEY_LEFT   'a'
-#define _KEY_DOWN   's'
-#define _KEY_RIGHT  'd'
-#define _KEY_QUIT   'q'
-
-#define GAME_WIN_X       0
-#define GAME_WIN_Y       0
-#define GAME_WIN_LINES   LINES / 2
-#define GAME_WIN_COLS    COLS / 3 * 2
-
-#define SCORE_WIN_X      GAME_WIN_COLS
-#define SCORE_WIN_Y      GAME_WIN_Y
-#define SCORE_WIN_LINES  GAME_WIN_LINES
-#define SCORE_WIN_COLS   COLS - GAME_WIN_COLS
-#define SCORE_LBL_X      2
-#define SCORE_LBL_Y      1
-
-#define SNAKE_HEAD        'O'
-#define SNAKE_DIRECTION   NORTH
 #define SNAKE_BODY        'o'
-#define SNAKE_MAX_BODY    256
 #define SNAKE_EMPTY_BODY  '\0'
-#define SNAKE_X           GAME_WIN_COLS / 2
-#define SNAKE_Y           GAME_WIN_LINES / 2
 
-typedef enum { NORTH, WEST, EAST, SOUTH } Direction;
 
-typedef struct {
-    int x, y;
-    char head;
-    char body[SNAKE_MAX_BODY];
-    Direction dir;
-} Snake;
-
-void snake_init(Snake*s);
-void snake_update_direction(Snake*, int);
-void snake_update_xy(Snake*);
-void snake_print(Snake*, WINDOW*);
-
-void setup_ncurses(void);
-void clean_up(void);
-
-WINDOW *game_win, *score_win;
-
-int main(void)
+void snake_init(Snake* snake, int capacity, int y, int x, Direction dir)
 {
-    setup_ncurses();
-
-    game_win = newwin(GAME_WIN_LINES, GAME_WIN_COLS, GAME_WIN_Y, GAME_WIN_X);
-
-    score_win = newwin(SCORE_WIN_LINES, SCORE_WIN_COLS, SCORE_WIN_Y, SCORE_WIN_X);
-    box(score_win, 0, 0);
-
-    Snake snake;
-    snake_init(&snake);
-
-    int c;
-    while ((c = getch()) != _KEY_QUIT) {
-        snake_update_direction(&snake, c);
-        snake_update_xy(&snake);
-        snake_print(&snake, game_win);
-        box(game_win, 0, 0);
-        wrefresh(game_win);
-        wrefresh(score_win);
-    }
-
-    clean_up();
-
-    return 0;
+    snake->y = y;
+    snake->x = x;
+    snake->dir = dir;
+    snake->body = (char*) malloc(capacity);
+    assert(snake->body != NULL);
+    memset(snake->body, SNAKE_EMPTY_BODY, capacity);
+    snake->body[0] = SNAKE_BODY;
+    snake->capacity = capacity;
+    snake->length = 1;
 }
 
-void setup_ncurses(void)
+
+void snake_free(Snake* snake)
 {
-    initscr();
-    noecho();
-    curs_set(0);
-    halfdelay(1);
+    free(snake->body);
 }
 
-void clean_up(void)
+
+void snake_draw(Snake* snake, GameWindow* game_win)
 {
-    delwin(game_win);
-    delwin(score_win);
-    endwin();
+    mvwaddch(game_win->frame, snake->y, snake->x, snake->body[0]);
 }
 
-void snake_init(Snake* snake)
+
+bool snake_grow_body(Snake* snake)
 {
-    snake->x = SNAKE_X;
-    snake->y = SNAKE_Y;
-    snake->dir = SNAKE_DIRECTION;
-    snake->head = SNAKE_HEAD;
-    memset(snake->body, SNAKE_EMPTY_BODY, SNAKE_MAX_BODY);
+    if (snake->length == snake->capacity)
+        return false;
+
+    snake->body[snake->length++] = SNAKE_BODY;
+    return true;
 }
 
-/*
- * Updates snake's direction based on a key pressed.
- */
-void snake_update_direction(Snake* snake, int key)
+
+void snake_update_dir(Snake* snake, int key)
 {
     switch (key) {
     case _KEY_UP:
@@ -121,10 +66,8 @@ void snake_update_direction(Snake* snake, int key)
     }
 }
 
-/*
- * Increments/decrements snake's x or y based on it's direction.
- */
-void snake_update_xy(Snake* snake)
+
+void snake_update_yx(Snake* snake, GameWindow* game_win)
 {
     switch (snake->dir) {
     case NORTH:
@@ -140,10 +83,15 @@ void snake_update_xy(Snake* snake)
         ++snake->x;
         break;
     }
-}
 
-void snake_print(Snake* snake, WINDOW* win)
-{
-    wclear(win);
-    mvwaddch(win, snake->y, snake->x, snake->head);
+    /* Border teleport */
+    if (snake->x == 0)
+        snake->x = game_win->cols - 1;
+    else if (snake->x == game_win->cols - 1)
+        snake->x = 1;
+
+    if (snake->y == 0)
+        snake->y = game_win->lines - 1;
+    else if (snake->y == game_win->lines - 1)
+        snake->y = 1;
 }
