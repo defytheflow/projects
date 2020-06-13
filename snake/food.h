@@ -4,12 +4,13 @@
 #include "game_window.h"
 
 typedef struct {
-    int y, x;
-    char body;
-} Food;
+    int y;
+    int x;
+    char skin;
+} food_t;
 
-void food_init(Food*, GameWindow*);
-void food_set_random_yx(Food*, GameWindow*);
-void food_draw(Food*, GameWindow*);
+void food_init(food_t*, game_window_t*, char skin);
+void food_draw(food_t*, game_window_t*);
+void food_set_random_yx(food_t*, game_window_t*);
 
 #endif /* FOOD_H */

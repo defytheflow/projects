@@ -6,21 +6,27 @@
 #include <ncurses.h>
 #include <stdbool.h>
 
-typedef enum { NORTH, WEST, EAST, SOUTH } Direction;
+typedef enum { NORTH, WEST, EAST, SOUTH } direction_t;
 
 typedef struct {
-    int x, y;
+    int y;
+    int x;
+    direction_t dir;
+} snake_body_t;
+
+typedef struct {
     int capacity;
     int length;
-    char* body;
-    Direction dir;
-} Snake;
+    char skin;
+    snake_body_t* body;
+} snake_t;
 
-void snake_init(Snake*, int capacity, int y, int x, Direction);
-void snake_free(Snake*);
-void snake_draw(Snake*, GameWindow*);
-bool snake_grow_body(Snake*);
-void snake_update_dir(Snake*, int key);
-void snake_update_yx(Snake*, GameWindow*);
+void snake_init(snake_t*, game_window_t*, int capacity, int y, int x, char skin);
+void snake_free(snake_t*);
+void snake_draw(snake_t*, game_window_t*);
+bool snake_grow(snake_t*);
+void snake_move(snake_t*, game_window_t*, int key);
+snake_body_t snake_head(snake_t*);
+snake_body_t snake_tail(snake_t*);
 
 #endif /* SNAKE_H */

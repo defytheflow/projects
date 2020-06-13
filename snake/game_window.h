@@ -7,15 +7,17 @@
 #include <stdbool.h>
 
 typedef struct {
-    WINDOW* frame;
+    int lines;
+    int cols;
     char** cells;
-    int lines, cols;
-} GameWindow;
+    WINDOW* frame;
+} game_window_t;
 
-void game_window_init(GameWindow*, int lines, int cols, int y, int x);
-void game_window_free(GameWindow*);
-void game_window_refresh(GameWindow*);
-bool yx_collides_with_border(GameWindow*, int y, int x);
-bool yx_occupied(GameWindow*, int y, int x);
+void game_window_init(game_window_t*, int lines, int cols, int y, int x);
+void game_window_free(game_window_t*);
+void game_window_refresh(game_window_t*);
+
+bool yx_collides_with_border(game_window_t*, int y, int x);
+bool yx_occupied(game_window_t*, int y, int x);
 
 #endif /* GAME_WINDOW_H */
