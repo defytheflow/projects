@@ -6,45 +6,50 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define CELL_EMPTY  0
+#define CELL_FULL   1
 
-void game_window_init(game_window_t* game_win, int lines, int cols, int y, int x)
+
+void game_window_init(game_window_t* win, int lines, int cols, int y, int x)
 {
-    game_win->frame = newwin(lines, cols, y, x);
-    game_win->lines = lines;
-    game_win->cols = cols;
-    game_win->cells = (char**) malloc(lines * sizeof(char*));
-    assert(game_win->cells != NULL);
+    win->frame = newwin(lines, cols, y, x);
+    win->lines = lines;
+    win->cols = cols;
+    win->cells = (char**) malloc(lines * sizeof(char*));
+    assert(win->cells != NULL);
 
     for (int i = 0; i < lines; ++i) {
-        game_win->cells[i] = (char*) malloc(cols);
-        assert(game_win->cells[i] != NULL);
-        memset(game_win->cells[i], 0, cols);
+        win->cells[i] = (char*) malloc(cols);
+        assert(win->cells[i] != NULL);
+        memset(win->cells[i], 0, cols);
     }
 }
 
 
-void game_window_free(game_window_t* game_win)
+void game_window_free(game_window_t* win)
 {
-    delwin(game_win->frame);
-    for (int i = 0; i < game_win->lines; ++i)
-        free(game_win->cells[i]);
-    free(game_win->cells);
+    delwin(win->frame);
+    for (int i = 0; i < win->lines; ++i)
+        free(win->cells[i]);
+    free(win->cells);
 }
 
 
-void game_window_refresh(game_window_t* game_win)
+void game_window_refresh(game_window_t* win)
 {
-    box(game_win->frame, 0, 0);
-    wrefresh(game_win->frame);
-    wclear(game_win->frame);
+    box(win->frame, 0, 0);
+    wrefresh(win->frame);
+    wclear(win->frame);
 }
 
-bool yx_collides_with_border(game_window_t* game_win, int y, int x)
+
+void game_window_set_cell(game_window_t* win, int y, int x)
 {
-    return (y == 0 || y == game_win->lines - 1 || x == 0 || x == game_win->cols - 1);
+    win->cells[y][x] = CELL_FULL;
 }
 
-bool yx_occupied(game_window_t* game_win, int y, int x)
+
+bool game_window_cell_empty(const game_window_t* win, int y, int x)
 {
-    return (game_win->cells[y][x] != 0);
+    return (win->cells[y][x] != CELL_EMPTY);
 }

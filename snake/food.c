@@ -6,25 +6,33 @@
 #include <stdlib.h>
 
 
-void food_init(food_t* food, game_window_t* game_win, char skin)
+static int random_range(int low, int high);
+
+
+void food_init(food_t* food, game_window_t* win, char skin)
 {
     food->skin = skin;
-    food_set_random_yx(food, game_win);
+    food_set_random_coords(food, win);
 }
 
 
-void food_draw(food_t* food, game_window_t* game_win)
+void food_draw(const food_t* food, const game_window_t* win)
 {
-    mvwaddch(game_win->frame, food->y, food->x, food->skin);
+    mvwaddch(win->frame, food->y, food->x, food->skin);
 }
 
 
-void food_set_random_yx(food_t* food, game_window_t* game_win)
+void food_set_random_coords(food_t* food, game_window_t* win)
 {
     do {
-        food->y = rand() % game_win->lines;
-        food->x = rand() % game_win->cols;
-    } while (yx_occupied(game_win, food->y, food->x) ||
-             yx_collides_with_border(game_win, food->y, food->x));
-    game_win->cells[food->y][food->x] = food->skin;
+        food->y = random_range(1, win->lines - 2);
+        food->x = random_range(1, win->cols - 2);
+    } while (!game_window_cell_empty(win, food->y, food->x));
+    game_window_set_cell(win, food->y, food->x);
+}
+
+
+static int random_range(int low, int high)
+{
+    return rand() % (high - low + 1) + low;
 }
