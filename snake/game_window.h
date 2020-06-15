@@ -15,10 +15,9 @@ typedef struct {
 } game_window_t;
 
 
-void game_window_init(game_window_t*, int lines, int cols, int y, int x);
+int game_window_init(game_window_t*, int lines, int cols);
 void game_window_free(game_window_t*);
-void game_window_refresh(game_window_t*);
-void game_window_set_cell(game_window_t*, int y, int x);
 bool game_window_cell_empty(const game_window_t*, int y, int x);
+void game_window_occupy_cell(game_window_t*, int y, int x);
 
 #endif /* GAME_WINDOW_H */

@@ -1,5 +1,0 @@
-#define MOVE_NORTH 'w'
-#define MOVE_WEST  'a'
-#define MOVE_SOUTH 's'
-#define MOVE_EAST  'd'
-#define QUIT       'q'

@@ -7,25 +7,31 @@
 #include <stdbool.h>
 
 
-typedef enum { NORTH, WEST, EAST, SOUTH } direction_t;
+typedef enum {
+    NORTH,
+    WEST,
+    EAST,
+    SOUTH,
+} direction_t;
+
 
 typedef struct {
     int y;
     int x;
     direction_t dir;
-} snake_body_t;
+} snake_body_part_t;
+
 
 typedef struct {
     int capacity;
     int length;
-    char skin;
-    snake_body_t* body;
+    snake_body_part_t* body;
 } snake_t;
 
 
-void snake_init(snake_t*, game_window_t*, int capacity, int y, int x, char skin);
+int snake_init(snake_t*, game_window_t*);
 void snake_free(snake_t*);
-void snake_draw(snake_t*, game_window_t*);
+void snake_draw(const snake_t*, const game_window_t*);
 bool snake_grow(snake_t*);
 bool snake_move(snake_t*, game_window_t*, int key);
 

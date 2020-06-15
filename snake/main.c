@@ -1,94 +1,71 @@
+#include "error.h"
 #include "food.h"
 #include "game_window.h"
-#include "keys.h"
 #include "snake.h"
+#include "utils.h"
 
 #include <ncurses.h>
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
-#define GAME_WINDOW_LINES  40
-#define GAME_WINDOW_COLS   80
-#define GAME_WINDOW_Y      LINES / 2 - GAME_WINDOW_LINES / 2
-#define GAME_WINDOW_X      COLS  / 2 - GAME_WINDOW_COLS  / 2
-
-#define GAMEOVER_WINDOW_LINES  GAME_WINDOW_LINES / 2
-#define GAMEOVER_WINDOW_COLS   GAME_WINDOW_COLS  / 2
-#define GAMEOVER_WINDOW_Y      GAME_WINDOW_Y + GAMEOVER_WINDOW_LINES / 2
-#define GAMEOVER_WINDOW_X      GAME_WINDOW_X + GAMEOVER_WINDOW_COLS  / 2
-
-#define SNAKE_Y            GAME_WINDOW_LINES / 2
-#define SNAKE_X            GAME_WINDOW_COLS / 2
-#define SNAKE_CAPACITY     (GAME_WINDOW_LINES - 2) * (GAME_WINDOW_COLS - 2)
-
-#define SNAKE_SKIN      'o'
-#define FOOD_SKIN       '*'
+#define GAME_WINDOW_LINES 30
+#define GAME_WINDOW_COLS 60
+#define QUIT 'q'
 
 
 void setup_ncurses(void);
-void gameover_window_mainloop(void);
+void score_print(int score, game_window_t*);
 
 
-/*
- * TODO:
- */
 int main(void)
 {
     setup_ncurses();
+    srand(time(NULL));
 
     game_window_t game_window;
     snake_t snake;
     food_t food;
 
-    game_window_init(&game_window, GAME_WINDOW_LINES, GAME_WINDOW_COLS, GAME_WINDOW_Y, GAME_WINDOW_X);
-    snake_init(&snake, &game_window, SNAKE_CAPACITY, SNAKE_Y, SNAKE_X, SNAKE_SKIN);
-    food_init(&food, &game_window, FOOD_SKIN);
+    int status;
+    if ((status = game_window_init(&game_window, GAME_WINDOW_LINES, GAME_WINDOW_COLS))) {
+        endwin();
+        print_error(status);
+        return EXIT_FAILURE;
+    }
+
+    if ((status = snake_init(&snake, &game_window))) {
+        endwin();
+        print_error(status);
+        return EXIT_FAILURE;
+    }
+
+    food_init(&food, &game_window);
 
     int key;
     int score = 0;
 
-    while ((key = getch()) != QUIT) {
-
-        if (!snake_move(&snake, &game_window, key))
-            gameover_window_mainloop();
-
+    while ((key = getch()) != QUIT && snake_move(&snake, &game_window, key)) {
         if (snake.body[0].x == food.x && snake.body[0].y == food.y) {
-            ++score;
             snake_grow(&snake);
             food_set_random_coords(&food, &game_window);
+            ++score;
         }
 
         food_draw(&food, &game_window);
         snake_draw(&snake, &game_window);
+        score_print(score, &game_window);
 
-        /* mvwprintw(stdscr, 1, 1, "Score: %d", score); */
-        /* mvwprintw(stdscr, 2, 1, "Length: %d", snake.length); */
-
-        game_window_refresh(&game_window);
+        box(game_window.frame, 0, 0);
+        wrefresh(game_window.frame);
     }
 
     game_window_free(&game_window);
     snake_free(&snake);
     endwin();
 
+    puts("Game over. Thanks for playing.");
     return EXIT_SUCCESS;
-}
-
-
-void gameover_window_mainloop()
-{
-    WINDOW* gameover_window = newwin(GAMEOVER_WINDOW_LINES, GAMEOVER_WINDOW_COLS,
-                                     GAMEOVER_WINDOW_Y, GAMEOVER_WINDOW_X);
-
-    int key;
-    while ((key = getch()) != QUIT) {
-        // print score and repeat again exit.
-        mvwprintw(gameover_window, 1, 1, "game over");
-        box(gameover_window, 0, 0);
-        wrefresh(gameover_window);
-    }
 }
 
 
@@ -97,6 +74,17 @@ void setup_ncurses(void)
     initscr();
     noecho();
     curs_set(0);
+    start_color();
     halfdelay(1);
-    srand(time(NULL));
+}
+
+
+void score_print(int score, game_window_t* win)
+{
+    int y, _;
+    getbegyx(win->frame, y, _);
+
+    static char format[128];
+    snprintf(format, sizeof(format), "Score: %d", score);
+    mvprintw(y - 1, str_center(format, COLS), format);
 }
