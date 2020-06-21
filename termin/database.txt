@@ -1,0 +1,34 @@
+Statement
+    is a type of instruction that causes the program to perform some action.
+Function
+    is a collection of statements that execute sequentially.
+Syntax
+    the rules that govern how elements of the language are constructed.
+Syntax Error
+    occurs when you violate the grammatical rules of the language.
+Comments
+    allow the programmer to leave notes in the code.
+Data
+    is any sequence of symbols that can be interpreted to mean something.
+Value
+    a single piece of data, stored somewhere in memory.
+Variable
+    is a named piece of memory that can be used to store values.
+Identifier
+    is a name that a variable is accessed by.
+Type
+    tells the compiler how to interpret a value in memory.
+Definition
+    is used in order to create variable.
+Initialization
+    can be used to give a variable a value at the point of creation.
+Uninitialized variable
+    is a variable that has not been given a value.
+Literal constant
+    is a fixed value inserted directly into the source code.
+Operation
+    is a mathematical calculation involving zero or more input values, called operands.
+Expression
+    is a combination of literals, variables, operators, and function calls that are evaluated to produce a single output value.
+Expression statement
+    is an expression that has been turned into a statement by placing a semicolon at the end of the expression.
