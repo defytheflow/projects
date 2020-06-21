@@ -1,0 +1,6 @@
+english word - definition - hint
+cat - meows - 0
+dog - barks - 0
+house - big - 0
+dad - family owner - 0
+apple - company name and fruit name - 0
