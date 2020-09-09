@@ -81,8 +81,8 @@ void setup_ncurses(void)
 
 void score_print(int score, game_window_t* win)
 {
-    int y, _;
-    getbegyx(win->frame, y, _);
+    int y, x;
+    getbegyx(win->frame, y, x);
 
     static char format[128];
     snprintf(format, sizeof(format), "Score: %d", score);

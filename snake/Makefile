@@ -1,26 +1,18 @@
+TARGET = snake
+SRC_DIR = src
+
 CC = gcc
-CFLAGS =
-LDFLAGS = -lncurses
+CFLAGS = -W -Wall -Wextra -Wpedantic
+LDLIBS = -lncurses
 
-default: snake
+SRCS = $(shell find $(SRC_DIR) -name *.c)
+OBJS = $(addsuffix .o, $(basename $(SRCS)))
 
-snake.o: snake.c snake.h
-	$(CC) -c $(CFLAGS) snake.c $(LDFLAGS)
+default: $(TARGET)
 
-error.o: error.c error.h
-	$(CC) -c $(CFLAGS) error.c $(LDFLAGS)
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LDLIBS) -o $@
 
-food.o: food.c food.h
-	$(CC) -c $(CFLAGS) food.c $(LDFLAGS)
-
-utils.o: utils.c utils.h
-	$(CC) -c $(CFLAGS) utils.c $(LDFLAGS)
-
-game_window.o: game_window.c game_window.h
-	$(CC) -c $(CFLAGS) game_window.c $(LDFLAGS)
-
-snake: main.c game_window.o snake.o food.o utils.o error.o
-	$(CC) $(CFLAGS) $^ $(LDFLAGS) -o $@
-
+.PHONY: clean
 clean:
-	$(RM) *.o snake
+	$(RM) $(TARGET) $(OBJS)
